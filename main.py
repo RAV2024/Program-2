@@ -1,40 +1,44 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton
-from PyQt5.uic import loadUi
+import random
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
 from PyQt5.QtGui import QPainter, QColor
 from PyQt5.QtCore import Qt
-import random
 
-
-class MyForm(QMainWindow):
+class MyWidget(QWidget):
     def __init__(self):
         super().__init__()
-        loadUi('UI.ui', self)
 
-        self.button = self.findChild(QPushButton, 'button')
-        self.button.clicked.connect(self.on_click)
-        self.show_circle = False
+        self.setGeometry(100, 100, 400, 300)
+        self.setWindowTitle('Кружечки')
 
-    def on_click(self):
-        self.show_circle = True
+        layout = QVBoxLayout()
+        self.btn = QPushButton('НАЖМИ')
+        self.btn.setFixedSize(100, 50)
+        self.btn.clicked.connect(self.draw_circle)
+        layout.addWidget(self.btn, alignment=Qt.AlignCenter)
+
+        self.setLayout(layout)
+
+        self.color = QColor()
+        self.diameter = 0
+        self.circle_x = 0
+        self.circle_y = 0
+
+    def draw_circle(self):
+        self.color = QColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        self.diameter = random.randint(20, 100)
+        self.circle_x = random.randint(0, self.width() - self.diameter)
+        self.circle_y = random.randint(0, self.height() - self.diameter)
         self.update()
 
     def paintEvent(self, event):
-        if self.show_circle:
-            painter = QPainter(self)
-            painter.setPen(Qt.NoPen)
-            color = QColor('yellow')
-            painter.setBrush(color)
-
-            size = random.randint(10, 100)
-            x = random.randint(0, self.width() - size)
-            y = random.randint(0, self.height() - size)
-
-            painter.drawEllipse(x, y, size, size)
-
+        painter = QPainter(self)
+        painter.setBrush(self.color)
+        painter.setPen(Qt.NoPen)
+        painter.drawEllipse(self.circle_x, self.circle_y, self.diameter, self.diameter)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    form = MyForm()
-    form.show()
+    w = MyWidget()
+    w.show()
     sys.exit(app.exec_())
